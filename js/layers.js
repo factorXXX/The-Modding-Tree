@@ -192,7 +192,6 @@ addLayer("a", {
         {key: "a", description: "A: Reset for additions", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
     layerShown(){return player.a.unlocked||player.s.unlocked||hasUpgrade('n',11)},
-    increaseUnlockOrder:['s'],
     milestones: {
         1: {
             requirementDescription: "1 additions",
