@@ -1,6 +1,6 @@
 let modInfo = {
 	name: "The Number Tree",
-	id: "汨屏河涼火",
+	id: "NumberTree",
 	author: "3^3=7#2252",
 	pointsName: "points",
 	modFiles: ["layers.js", "tree.js"],
@@ -13,15 +13,19 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0.2",
-	name: "Nanotings",
+	num: "0.0.3",
+	name: "2 Nanothings",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+<h3>v0.0.3</h3><br>
+		- Added 6 Number upgrades.<br>
+		- Balanced subtraction path<br>
+		- Endgame: 17 number upgrades<br>
     <h3>v0.0.2</h3><br>
 		- Added 2 Number upgrades.<br>
 		- Added Addition and subtraction. (only addition path balanced)<br>
-		- Endgame: Unlock both addition and subtraction. (addition path)<br>
+		- Endgame: Unlock both addition and subtraction. (only addition path)<br>
 	<h3>v0.0.1</h3><br>
 		- Added 9 Number upgrades.<br>
 		- A easter egg hide in somewhere??<br>
@@ -50,12 +54,17 @@ function getPointGen() {
 	let gain = new Decimal(1)
 	if(hasUpgrade('n',33))gain=gain.times(4)
 	if(hasUpgrade('n',43))gain=gain.times(4)
+	if(hasUpgrade('n',32))gain=gain.times(4)
 	if(hasUpgrade('n',31))gain=gain.times(upgradeEffect('n',31))
 	if(hasUpgrade('n',53))gain=gain.times(upgradeEffect('n',53))
 	if(hasUpgrade('n',51))gain=gain.times(upgradeEffect('n',51))
 	if(hasMilestone('a',1))gain=gain.times(player.a.points.times(2).add(1))
-	if(hasMilestone('a',2))gain=gain.times(D(2).pow(player.a.milestones.length))
+	let a2ExMil=D(0)
+	if(hasMilestone('a',6))a2ExMil=a2ExMil.add(player.a.points.add(1).log(1.618).add(1))
+	if(hasUpgrade('n',22))a2ExMil=a2ExMil.add(3)
+	if(hasMilestone('a',2))gain=gain.times(D(2).pow(a2ExMil.add(player.a.milestones.length)))
 	if(hasMilestone('a',5))gain=gain.times(player.points.add(10).log(10))
+	if(hasMilestone('s',1))gain=gain.times(2)
 	return gain
 }
 
