@@ -23,15 +23,18 @@ addLayer("n", {
         if(hasMilestone('s',1))mult=mult.times(player.s.points.add(1))
         let s2ExMil=D(0)
 	    if(hasMilestone('s',4))s2ExMil=s2ExMil.add(player.s.points.add(1).log(1.618).add(1))
-        if(hasUpgrade('n',44))s2ExMil=s2ExMil.add(3)
+        if(hasUpgrade('n',44))s2ExMil=s2ExMil.add(10)
         if(hasMilestone('s',2))mult=mult.times(D(1.5).pow(s2ExMil.add(player.s.milestones.length)))
         if(hasMilestone('s',3))mult=mult.times(player.n.points.add(10).log(10))
         if(hasAchievement('ach',13))mult=mult.times(1.5)
         if(hasAchievement('ach',14))mult=mult.times(1.5)
         if(hasAchievement('ach',15))mult=mult.times(2)
+        if(hasMilestone('m',1))mult=mult.times(player.m.points.pow(0.5).add(1))
+        if(hasChallenge('m',12))mult=mult.times(tmp.m.mpEff)
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
+        if(inChallenge('m',12))return D(0)
         return new Decimal(1)
     },
     row: 0, // Row the layer is in on the tree (0 is the first row)
@@ -170,7 +173,7 @@ addLayer("n", {
         44:{
             title:"1+(-i)",
             cost(){return new Decimal(!(player.a.unlocked&&player.s.unlocked)?1/0:1e27)},
-            description:"Get 3 subtraction milestones.",
+            description:"Get 10 subtraction milestones.",
             style(){
                 if(player.a.unlocked&&player.s.unlocked)return;
                 return{"background-color":"#0f0f0f"}
@@ -215,9 +218,10 @@ addLayer("n", {
         let keep = []
         if(layers[resettingLayer].row<= this.row) return;
         if (hasMilestone('a', 4)) keep.push("upgrades")
-        layerDataReset(this.layer, keep)  
+        layerDataReset(this.layer, keep)
     },
-    branches:['a','s']
+    branches:['a','s'],
+    autoUpgrade(){return hasMilestone('m',2)}
 })
 addLayer("a", {
     symbol: "A", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -283,8 +287,13 @@ addLayer("a", {
             effectDescription: "log1.618(addition+1)+1 add to second milestone milestone count.",
             done() { return player.a.points.gte(18) },
         },
+        7: {
+            requirementDescription: "21 additions",
+            effectDescription: "Fifth milestone effect ^2.5.",
+            done() { return player.a.points.gte(21) },
+        },
     },
-    
+    autoPrestige(){return hasMilestone('m',3)}
 }),
 addLayer("s", {
     symbol: "S", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -342,6 +351,131 @@ addLayer("s", {
     },
 
     layerShown(){return player.a.unlocked||player.s.unlocked||hasUpgrade('n',55)},
+})
+addLayer("m", {
+    symbol: "M", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: false,
+		points: new Decimal(0),
+        mp:new Decimal(0)
+    }},
+    requires(){if(player.d.points.gte(1)&&!player.m.points.gte(1)) return new Decimal("1e60")
+    else return new Decimal("1e31")}, 
+    color: "#c2a958",
+    resource: "Multiplication", // Name of prestige currency
+    baseResource: "numbers", // Name of resource prestige is based on
+    baseAmount() {return player.n.points}, // Get the current amount of baseResource
+    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already hav
+    exponent: 0.2, // Prestige currency exponent
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        let mult = new Decimal(1)
+        return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    row: 2, // Row the layer is in on the tree (0 is the first row)
+    hotkeys: [
+        {key: "m", description: "M: Reset for Multiplication", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
+    ],
+    branches:['a'],
+    layerShown(){return player.a.unlocked},
+    update(diff){
+        player.m.mp=player.m.mp.add(tmp.m.mpGain.times(diff))
+    },
+    milestones: {
+        1: {
+            requirementDescription: "2 Multiplication",
+            effectDescription: "Multiplication^0.5+1 boost number gain.",
+            done() { return player.m.points.gte(2) },
+        },
+        2: {
+            requirementDescription: "4 Multiplication",
+            effectDescription: "Auto buy number upgrade.",
+            done() { return player.m.points.gte(4) },
+        },
+        3: {
+            requirementDescription: "8 Multiplication",
+            effectDescription: "Auto buy addition.",
+            done() { return player.m.points.gte(8) },
+        },
+        4: {
+            requirementDescription: "16 Multiplication",
+            effectDescription: "Unlock 2 challenge, which goals will change based on other challenge completition.",
+            done() { return player.m.points.gte(16) },
+        },
+        5: {
+            requirementDescription: "100 Multiplication",
+            effectDescription: "Unlock.",
+            done() { return player.m.points.gte(16) },
+        },
+    },
+    tabFormat:[
+        "main-display",
+        "prestige-button",
+        "resource-display",
+        "blank",
+        ["display-text",()=>{return "You have "+format(player.m.mp)+" Multiplication Point. Which boost point gain by "+format(tmp.m.mpEff)}],
+        ["display-text",()=>{return "You are gaining "+format(tmp.m.mpGain)+" Multiplication Point per second."}],
+        "blank",
+        "milestones",
+        "blank",
+        "challenges",
+    ],
+    mpGain(){
+        return player.m.points.pow(0.8)
+    },
+    mpEff(){
+        let eff= player.m.mp.add(1).pow(0.5)
+        if(hasChallenge('m',11))eff=eff.pow(2)
+        return eff
+    },
+    challenges:{
+        11:{
+        name: "Pointless",
+        challengeDescription: "Point gain is always 1",
+        goalDescription(){return hasChallenge('m',12)?"600,000 numbers":"720 numbers"},
+        canComplete: function() {return player.n.points.gte(hasChallenge('m',12)?6e5:720)},
+        rewardDescription:"Square Multiplication point effect."
+        },
+        12:{
+        name: "Numberless",
+        challengeDescription: "Number gain is always 0",
+        goalDescription(){return hasChallenge('m',11)?"250,000 Points":"2,000 Points"},
+        canComplete: function() {return player.points.gte(hasChallenge('m',12)?2.5e5:2000)},
+        rewardDescription:"Number gain is boosted by multiplication point."
+        },
+    }
+})
+addLayer("d", {
+    symbol: "D", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 1, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: false,
+		points: new Decimal(0),
+    }},
+    requires(){if(player.m.points.gte(1)&&!player.d.points.gte(1)) return new Decimal("21")
+    else return new Decimal("18")}, 
+    color: "#dfa2f6",
+    resource: "Division", // Name of prestige currency
+    baseResource: "subtraction", // Name of resource prestige is based on
+    baseAmount() {return player.s.points}, // Get the current amount of baseResource
+    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already hav
+    exponent: 7, // Prestige currency exponent
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        let mult = new Decimal(1)
+        return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    row: 2, // Row the layer is in on the tree (0 is the first row)
+    hotkeys: [
+        {key: "d", description: "D: Reset for Division", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
+    ],
+    branches:['s'],
+    layerShown(){return player.a.unlocked},
 })
 addLayer("ach", {
     symbol: "A", // This appears on the layer's node. Default is the id with the first letter capitalized

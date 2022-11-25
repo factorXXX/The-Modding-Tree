@@ -13,11 +13,13 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0.3",
-	name: "2 Nanothings",
+	num: "0.0.4",
+	name: "4 Nanothings",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+<h3>v0.0.4</h3><br>
+- Endgame: Unlock both M and F. (only M path)<br>
 <h3>v0.0.3</h3><br>
 		- Added 6 Number upgrades.<br>
 		- Balanced subtraction path<br>
@@ -50,7 +52,7 @@ function canGenPoints(){
 function getPointGen() {
 	if(!canGenPoints())
 		return new Decimal(0)
-
+    if(inChallenge('m',11))return D(1)
 	let gain = new Decimal(1)
 	if(hasUpgrade('n',33))gain=gain.times(4)
 	if(hasUpgrade('n',43))gain=gain.times(4)
@@ -63,8 +65,9 @@ function getPointGen() {
 	if(hasMilestone('a',6))a2ExMil=a2ExMil.add(player.a.points.add(1).log(1.618).add(1))
 	if(hasUpgrade('n',22))a2ExMil=a2ExMil.add(3)
 	if(hasMilestone('a',2))gain=gain.times(D(2).pow(a2ExMil.add(player.a.milestones.length)))
-	if(hasMilestone('a',5))gain=gain.times(player.points.add(10).log(10))
+	if(hasMilestone('a',5))gain=gain.times(player.points.add(10).log(10).pow(hasMilestone('a',7)?2.5:1))
 	if(hasMilestone('s',1))gain=gain.times(2)
+	gain=gain.times(tmp.m.mpEff)
 	return gain
 }
 
