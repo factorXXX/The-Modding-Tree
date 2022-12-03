@@ -13,11 +13,14 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0.4",
+	num: "0.0.5",
 	name: "4 Nanothings",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+<h3>v0.0.5</h3><br>
+- Balanced D path<br>
+- Endgame: 1e50 points<br>
 <h3>v0.0.4</h3><br>
 - Endgame: Unlock both M and F. (only M path)<br>
 <h3>v0.0.3</h3><br>
@@ -68,6 +71,8 @@ function getPointGen() {
 	if(hasMilestone('a',5))gain=gain.times(player.points.add(10).log(10).pow(hasMilestone('a',7)?2.5:1))
 	if(hasMilestone('s',1))gain=gain.times(2)
 	gain=gain.times(tmp.m.mpEff)
+	gain=gain.times(D(10).pow(D(player.d.eff1).pow(0.8)))
+	if(hasMilestone('d',2))gain=gain.times(D(3).pow(D(player.d.eff2).pow(0.8)))
 	return gain
 }
 
@@ -81,7 +86,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return false
+	return player.points.gte(1e50)
 }
 
 
