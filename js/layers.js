@@ -31,6 +31,8 @@ addLayer("n", {
         if(hasAchievement('ach',15))mult=mult.times(2)
         if(hasMilestone('m',1))mult=mult.times(player.m.points.pow(0.5).add(1))
         if(hasChallenge('m',12))mult=mult.times(tmp.m.mpEff)
+        mult=mult.times(D(3).pow(D(player.d.eff2).pow(0.8)))   
+        if(hasMilestone('d',3))mult=mult.times(D(10).pow(D(player.d.eff1).pow(0.6)).pow(0.5))     
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -76,7 +78,15 @@ addLayer("n", {
                 return{"background-color":"#0f0f0f"}
             },
         },
-        21:{style(){return{"background-color":"#0f0f0f"}},cost:new Decimal(1/0),},
+        21:{
+            title:"-∞+i",
+            cost(){return new Decimal(!hasChallenge('d',12)?1/0:1e36)},
+            description:"Subtration cost scale slower.",
+            style(){
+                if(hasChallenge('d',12))return;
+                return{"background-color":"#0f0f0f"}
+            },
+        },
         22:{
             title:"-1+i",
             cost(){return new Decimal(!(player.a.unlocked&&player.s.unlocked)?1/0:1e24)},
@@ -104,7 +114,15 @@ addLayer("n", {
                 return{"background-color":"#0f0f0f"}
             },
         },
-        25:{style(){return{"background-color":"#0f0f0f"}},cost:new Decimal(1/0),},
+        25:{
+            title:"∞+i",
+            cost(){return new Decimal(!hasChallenge('d',12)?1/0:1e40)},
+            description:"Addition cost scale slower.",
+            style(){
+                if(hasChallenge('d',12))return;
+                return{"background-color":"#0f0f0f"}
+            },
+        },
         31:{
             title:"-∞",
             cost(){return new Decimal(!hasUpgrade('n',33)?1/0:5)},
@@ -221,7 +239,8 @@ addLayer("n", {
         layerDataReset(this.layer, keep)
     },
     branches:['a','s'],
-    autoUpgrade(){return hasMilestone('m',2)}
+    autoUpgrade(){return hasMilestone('m',2)},
+    passiveGeneration(){return hasMilestone('d',1)?tmp.d.effect.pow(2).times(0.01):0}
 })
 addLayer("a", {
     symbol: "A", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -241,8 +260,10 @@ addLayer("a", {
         return 4
     },
     exponent(){
-        if(player.a.points.gte(12)) return new Decimal(0.75).add(player.a.points.sub(11).times(0.05));
-        return 0.75
+        let base=0.75
+        if(hasUpgrade('n',25))base=0.65
+        if(player.a.points.gte(12)) return new Decimal(base).add(player.a.points.sub(11).times(0.05));
+        return base
     },
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1)
@@ -293,7 +314,8 @@ addLayer("a", {
             done() { return player.a.points.gte(21) },
         },
     },
-    autoPrestige(){return hasMilestone('m',3)}
+    autoPrestige(){return hasMilestone('m',3)},
+   
 }),
 addLayer("s", {
     symbol: "S", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -310,7 +332,10 @@ addLayer("s", {
     baseAmount() {return player.points}, // Get the current amount of baseResource
     type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already hav
     base:4,
-    exponent: 1.25, // Prestige currency exponent
+    exponent(){
+        if(hasUpgrade('n',21)) return 1.15
+        return 1.25
+    },
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1)
         return mult
@@ -349,7 +374,8 @@ addLayer("s", {
             done() { return player.s.points.gte(16) },
         },
     },
-
+    canBuyMax(){return hasAchievement('ach',23)},
+    autoPrestige(){return hasMilestone('d',5)},
     layerShown(){return player.a.unlocked||player.s.unlocked||hasUpgrade('n',55)},
 })
 addLayer("m", {
@@ -360,7 +386,7 @@ addLayer("m", {
 		points: new Decimal(0),
         mp:new Decimal(0)
     }},
-    requires(){if(player.d.points.gte(1)&&!player.m.points.gte(1)) return new Decimal("1e60")
+    requires(){if(player.d.points.gte(1)&&!player.m.points.gte(1)) return new Decimal("1e42")
     else return new Decimal("1e31")}, 
     color: "#c2a958",
     resource: "Multiplication", // Name of prestige currency
@@ -405,11 +431,6 @@ addLayer("m", {
             effectDescription: "Unlock 2 challenge, which goals will change based on other challenge completition.",
             done() { return player.m.points.gte(16) },
         },
-        5: {
-            requirementDescription: "100 Multiplication",
-            effectDescription: "Unlock.",
-            done() { return player.m.points.gte(16) },
-        },
     },
     tabFormat:[
         "main-display",
@@ -437,14 +458,16 @@ addLayer("m", {
         challengeDescription: "Point gain is always 1",
         goalDescription(){return hasChallenge('m',12)?"600,000 numbers":"720 numbers"},
         canComplete: function() {return player.n.points.gte(hasChallenge('m',12)?6e5:720)},
-        rewardDescription:"Square Multiplication point effect."
+        rewardDescription:"Square Multiplication point effect.",
+        unlocked(){return hasMilestone('m',4)},
         },
         12:{
         name: "Numberless",
         challengeDescription: "Number gain is always 0",
         goalDescription(){return hasChallenge('m',11)?"250,000 Points":"2,000 Points"},
         canComplete: function() {return player.points.gte(hasChallenge('m',12)?2.5e5:2000)},
-        rewardDescription:"Number gain is boosted by multiplication point."
+        rewardDescription:"Number gain is boosted by multiplication point.",
+        unlocked(){return hasMilestone('m',4)},
         },
     }
 })
@@ -454,6 +477,8 @@ addLayer("d", {
     startData() { return {
         unlocked: false,
 		points: new Decimal(0),
+        eff1:"",
+        eff2:"",
     }},
     requires(){if(player.m.points.gte(1)&&!player.d.points.gte(1)) return new Decimal("21")
     else return new Decimal("18")}, 
@@ -476,6 +501,94 @@ addLayer("d", {
     ],
     branches:['s'],
     layerShown(){return player.a.unlocked},
+    effect(){return player.d.points.max(1).log(hasChallenge('d',11)?1.5:2).add(1).floor()},
+    effectDescription(){return "which provide "+tmp.d.effect+" building power."},
+    milestones: {
+        1: {
+            requirementDescription: "3 Division",
+            effectDescription: "Generate (Building power^2)% Number on reset per second.",
+            done() { return player.d.points.gte(3) },
+        },
+        2: {
+            requirementDescription: "6 Division",
+            effectDescription: "Effect 2 also boost point gain.",
+            done() { return player.d.points.gte(6) },
+        },
+        3: {
+            requirementDescription: "12 Division",
+            effectDescription(){return "Effect 1 also boost number gain at reduced rate.<br>Currently: "+format(D(10).pow(D(player.d.eff1).pow(0.6)).pow(0.5))+"x"},
+            done() { return player.d.points.gte(12) },
+        },
+        4: {
+            requirementDescription: "18 Division",
+            effectDescription(){return "Unlock Challenge."},
+            done() { return player.d.points.gte(18) },
+        },
+        5: {
+            requirementDescription: "100 Division",
+            effectDescription(){return "Auto buy subtraction."},
+            done() { return player.d.points.gte(100) },
+        },
+    },
+    tabFormat:[
+        "main-display",
+        "prestige-button",
+        "resource-display",
+        "blank",
+        ["row",[
+            ["display-text",()=>{
+            return "Effect 1: Boost point gain. Currently: "+format(D(10).pow(D(player.d.eff1).pow(0.8)))+"x "
+            }],
+            "blank",
+            ["text-input",["eff1"]]
+         ]],
+         ["row",[
+            ["display-text",()=>{
+            return "Effect 2: Boost number gain. Currently: "+format(D(3).pow(D(player.d.eff2).pow(0.8)))+"x "
+            }],
+            "blank",
+            ["text-input",["eff2"]]
+         ]],
+        "blank"
+        ,
+        "milestones",
+        "blank",
+        "challenges",
+    ],
+    update(diff){
+        if(D(player.d.eff1).add(player.d.eff2).gt(tmp.d.effect)){
+            player.d.eff1=0
+            player.d.eff2=0
+        }
+        if(!(D(player.d.eff1).eq(D(player.d.eff1).floor()))){
+            player.d.eff1=0
+            player.d.eff2=0
+        }
+        if(!(D(player.d.eff2).eq(D(player.d.eff2).floor()))){
+            player.d.eff1=0
+            player.d.eff2=0
+        }
+        if(inChallenge('d',11))player.points=player.points.min(getPointGen())
+        if(inChallenge('d',12))player.n.points=player.n.points.min(tmp.n.resetGain)
+    },
+    challenges:{
+        11:{
+        name: "PointCap",
+        challengeDescription: "Point is cap to one second of it production.",
+        goalDescription(){return hasChallenge('d',12)?"1.9e34 points":"2e32 points"},
+        canComplete: function() {return player.points.gte(hasChallenge('d',12)?1.9e34:2e32)},
+        rewardDescription:"Building power scaling is slower.",
+        unlocked(){return hasMilestone('d',4)},
+        },
+        12:{
+        name: "NumberCap",
+        challengeDescription: "Number is cap to reset amount.",
+        goalDescription(){return hasChallenge('d',11)?"2.5e37 numbers":"1e35 numbers"},
+        canComplete: function() {return player.n.points.gte(hasChallenge('d',11)?2.5e37:1e35)},
+        rewardDescription:"Unlock more number upgrade.",
+        unlocked(){return hasMilestone('d',4)},
+        },
+    }
 })
 addLayer("ach", {
     symbol: "A", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -525,6 +638,26 @@ addLayer("ach", {
             name: "+-",
             tooltip:"Get both addition and subtraction. Reward: number gain x2",
             done(){return player.a.points.gte(1)&&player.s.points.gte(1)}
+        },
+        21: {
+            name: "x",
+            tooltip:"Get a multiplication.",
+            done(){return player.m.points.gte(1)}
+        },
+        22: {
+            name: "/",
+            tooltip:"Get a division.",
+            done(){return player.d.points.gte(1)}
+        },
+        23: {
+            name: "x/",
+            tooltip:"Get both addition and subtraction. Reward: buy max subtraction.",
+            done(){return player.m.points.gte(1)&&player.d.points.gte(1)}
+        },
+        24: {
+            name: "challenging",
+            tooltip:"Complete first 2 M and D challenge",
+            done(){return hasChallenge('m',11)&&hasChallenge('m',12)&&hasChallenge('d',11)&&hasChallenge('d',12)}
         },
     },
 
