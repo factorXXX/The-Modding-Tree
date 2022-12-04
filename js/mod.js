@@ -13,11 +13,14 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0.5",
-	name: "4 Nanothings",
+	num: "0.0.6",
+	name: "Dimensional stuff",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+<h3>v0.0.6</h3><br>
+- Added DO and L<br>
+- Endgame: 1e15 M<br>
 <h3>v0.0.5</h3><br>
 - Balanced D path<br>
 - Endgame: 1e50 points<br>
@@ -86,7 +89,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte(1e50)
+	return player.m.points.gte(1e15)
 }
 
 

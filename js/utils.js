@@ -101,8 +101,8 @@ function buyMaxBuyable(layer, id) {
 }
 
 function buyBuyable(layer, id) {
-	if (!player[layer].unlocked) return
-	if (!tmp[layer].buyables[id].unlocked) return
+	if (!player[layer].unlocked) return;
+	if (!tmp[layer].buyables[id].unlocked) return;
 	if (!tmp[layer].buyables[id].canBuy) return
 
 	run(layers[layer].buyables[id].buy, layers[layer].buyables[id])
