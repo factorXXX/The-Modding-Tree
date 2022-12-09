@@ -794,9 +794,7 @@ addLayer("dim0", {
             }
         },
     },
-    update(diff){
-        if(player.points.gte(1e50)&&!player.dim0.unlocked)player.dim0.unlocked=true
-    },
+
     upgrades:{
         11:{
             description:"Make dot boost multiplication point gain.",
@@ -855,6 +853,7 @@ addLayer("dim0", {
         if(layers[resettingLayer].row> this.row||resettingLayer=="dim1")layerDataReset(this.layer, keep)
     },
     update(diff){
+        if(player.points.gte(1e50)&&!player.dim0.unlocked)player.dim0.unlocked=true
         if(hasMilestone('dim1',1)){
             if(tmp.dim0.buyables[11].canAfford) setBuyableAmount(this.layer, 11, getBuyableAmount(this.layer, 11).add(1))
         if(tmp.dim0.buyables[12].canAfford) setBuyableAmount(this.layer, 12, getBuyableAmount(this.layer, 12).add(1))
