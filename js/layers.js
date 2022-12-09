@@ -420,7 +420,7 @@ addLayer("m", {
     exponent: 0.2, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1)
-        if(player.dim1.spellTime[1]!=0)mult=mult.times(8)
+        if(player.dim1.spellTime[1]!=0)mult=mult.times(tmp.dim1.spell2Eff)
         if(hasUpgrade('n',45))mult=mult.times(upgradeEffect('n',45))
         return mult
     },
@@ -478,7 +478,7 @@ addLayer("m", {
     mpEff(){
         let eff= player.m.mp.add(1).pow(0.5)
         if(hasChallenge('m',11))eff=eff.pow(2)
-        return eff
+        return softcap(eff,D(1e36),0.5)
     },
     challenges:{
         11:{
@@ -518,6 +518,8 @@ addLayer("d", {
     exponent: 7, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1)
+        if(hasMilestone('e',3))mult=mult.times(getBuyableAmount('dim0',12).add(1))
+        if(hasUpgrade('dim0',22))mult=mult.times(upgradeEffect('dim0',22))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -641,7 +643,10 @@ addLayer("dim0", {
         mult=mult.times(tmp.dim0.buyables[11].effect)
         mult=mult.times(tmp.dim0.buyables[12].effect)
         mult=mult.times(tmp.dim0.buyables[13].effect)
+        mult=mult.times(tmp.dim0.buyables[21].effect)
+        mult=mult.times(tmp.dim0.buyables[22].effect)
         if(hasUpgrade('n',41))mult=mult.times(upgradeEffect('n',41))
+        if(hasUpgrade('dim0',23))mult=mult.times(5)
         if(player.dim1.spellTime[0]!=0)mult=mult.times(8)
         return mult
     },
@@ -689,7 +694,9 @@ addLayer("dim0", {
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
             effect() { 
-              return new Decimal(2).pow(getBuyableAmount(this.layer, this.id))                
+                let base=D(2)
+                if(hasMilestone('e',2)) base=base.add(0.25)
+              return base.pow(getBuyableAmount(this.layer, this.id).add(hasUpgrade('dim0',14)?getBuyableAmount(this.layer, 13):0).add(hasUpgrade('dim0',21)?getBuyableAmount(this.layer, 21):0).add(hasUpgrade('dim0',22)?getBuyableAmount(this.layer, 12).div(2):0))                
             }
         },
         12: {
@@ -727,7 +734,10 @@ addLayer("dim0", {
               return player.dim0.points.gte(tmp.dim0.buyables[this.id].cost) 
             },
             cost(){
-            return  D(1e12).times(D(20).pow(getBuyableAmount(this.layer, this.id).pow(1.3)))
+                let amount=getBuyableAmount(this.layer, this.id)
+                let power=D(1.3)
+                if(amount.gte(35))power=power.add(amount.sub(35).div(200))
+            return  D(1e12).times(D(20).pow(getBuyableAmount(this.layer, this.id).pow(power)))
             },
             buy() { 
                 {
@@ -739,6 +749,50 @@ addLayer("dim0", {
               return player.s.points.add(1).pow(0.5).pow(getBuyableAmount(this.layer, this.id))                
             }
         },
+        21: {
+            title: "Dot really make dot",
+            display() {
+               return "<br>Boost Dot gain base on Dot<br><br>Currently: "+format(tmp.dim0.buyables[this.id].effect)+"x<br><br>Cost : " + format(tmp.dim0.buyables[this.id].cost) + " Dots"
+            },
+            unlocked() { return true},
+            canAfford() { 
+              return player.dim0.points.gte(tmp.dim0.buyables[this.id].cost) 
+            },
+            cost(){
+            return  D(1e75).times(D(250).pow(getBuyableAmount(this.layer, this.id).pow(1.32)))
+            },
+            buy() { 
+                {
+                   player.dim0.points = player.dim0.points.minus(tmp.dim0.buyables[this.id].cost)
+                }
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            },
+            effect() { 
+              return player.dim0.points.add(100).log(10).pow(getBuyableAmount(this.layer, this.id).times(0.9))                
+            }
+        },
+        22: {
+            title: "Add the Dot amount",
+            display() {
+               return "<br>Boost Dot gain base on Addition<br><br>Currently: "+format(tmp.dim0.buyables[this.id].effect)+"x<br><br>Cost : " + format(tmp.dim0.buyables[this.id].cost) + " Dots"
+            },
+            unlocked() { return true},
+            canAfford() { 
+              return player.dim0.points.gte(tmp.dim0.buyables[this.id].cost) 
+            },
+            cost(){
+            return  D(1e160).times(D(1e3).pow(getBuyableAmount(this.layer, this.id).pow(1.35)))
+            },
+            buy() { 
+                {
+                   player.dim0.points = player.dim0.points.minus(tmp.dim0.buyables[this.id].cost)
+                }
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            },
+            effect() { 
+              return player.a.points.add(1).pow(getBuyableAmount(this.layer, this.id))                
+            }
+        },
     },
     update(diff){
         if(player.points.gte(1e50)&&!player.dim0.unlocked)player.dim0.unlocked=true
@@ -747,7 +801,7 @@ addLayer("dim0", {
         11:{
             description:"Make dot boost multiplication point gain.",
             cost:D(4e6),
-            effect(){return player.dim0.points.add(10).pow(0.2)},
+            effect(){return softcap(player.dim0.points.add(10).pow(0.2),D(1e10),0.5)},
             effectDisplay(){return format(upgradeEffect('dim0',11))+"x"}
         },
         12:{
@@ -758,13 +812,60 @@ addLayer("dim0", {
         13:{
             description:"Unlock line.",
             cost:D(1e40),
-            unlocked(){return hasUpgrade(this.layer,11)}
+            unlocked(){return hasUpgrade(this.layer,12)}
+        },
+        14:{
+            description:"(REQ: 1e25 mp per second) StSoD give free level to DmD.",
+            cost:D(1e50),
+            canAfford(){return tmp.m.mpGain.gte(1e25)},
+            unlocked(){return hasUpgrade(this.layer,13)}
+        },
+        21:{
+            description:"(REQ: 2.5e37 mp per second) DrmD give free level to DmD.",
+            cost:D(1e144),
+            canAfford(){return tmp.m.mpGain.gte(2.5e37)},
+            unlocked(){return hasUpgrade(this.layer,14)}
+        },
+        22:{
+            description:"(REQ: 1e44 mp per second) Every 2 DD give free level to DmD. And log10(mp)^0.5 boost division gain.",
+            cost:D(1e144),
+            canAfford(){return tmp.m.mpGain.gte(1e44)},
+            unlocked(){return hasUpgrade(this.layer,21)},
+            effect(){return player.m.mp.add(10).log(10).pow(0.5)},
+            effectDisplay(){return format(upgradeEffect('dim0',22))+"x"}
+        },
+        23:{
+            description:"(REQ: 2.5e51 mp per second) Auto buy second row buyable. And dot gain x5 also keep upgrade on reset.",
+            cost:D(1e255),
+            canAfford(){return tmp.m.mpGain.gte(2.5e51)},
+            unlocked(){return hasUpgrade(this.layer,22)},
+        },
+        24:{
+            description:"Unlock Shape. (next update)",
+            cost:D(1e11),
+            currencyDisplayName:"lines",
+            currencyInternalName:"points",
+            currencyLayer:"dim1",
+            unlocked(){return hasUpgrade(this.layer,22)},
         },
     },
     doReset(resettingLayer){
         let keep = []
+        if(hasUpgrade('dim0',23))keep.push('upgrades')
         if(layers[resettingLayer].row> this.row||resettingLayer=="dim1")layerDataReset(this.layer, keep)
     },
+    update(diff){
+        if(hasMilestone('dim1',1)){
+            if(tmp.dim0.buyables[11].canAfford) setBuyableAmount(this.layer, 11, getBuyableAmount(this.layer, 11).add(1))
+        if(tmp.dim0.buyables[12].canAfford) setBuyableAmount(this.layer, 12, getBuyableAmount(this.layer, 12).add(1))
+        if(tmp.dim0.buyables[13].canAfford) setBuyableAmount(this.layer, 13, getBuyableAmount(this.layer, 13).add(1))
+        
+        }
+        if(hasUpgrade('dim0',23)){
+            if(tmp.dim0.buyables[21].canAfford) setBuyableAmount(this.layer, 21, getBuyableAmount(this.layer, 21).add(1))
+        if(tmp.dim0.buyables[22].canAfford) setBuyableAmount(this.layer, 22, getBuyableAmount(this.layer, 22).add(1))
+        }
+    }
 })
 addLayer("dim1", {
     symbol: "L", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -798,7 +899,9 @@ branches:['dim0'],
         "prestige-button",
         "resource-display",
         "blank",
-        "clickables"
+        "clickables",
+        "blank",
+        "milestones"
     ],
     clickables:
     {
@@ -817,7 +920,7 @@ branches:['dim0'],
         },
       },
       12:{
-        title(){return `Multiple dot equals line<br><small><small>Cosume 1 line, boost your multiplcation gain by 8 for 40 seconds.<br>Time: ${format(player.dim1.spellTime[1])}s</small></small>`},
+        title(){return `Multiple dot equals line<br><small><small>Cosume 1 line, boost your multiplcation gain by ${format(tmp.dim1.spell2Eff)} for 40 seconds.<br>Time: ${format(player.dim1.spellTime[1])}s</small></small>`},
         canClick(){return player.dim1.points.gte(1)},
         onClick(){
             player.dim1.spellTime[1]=40
@@ -832,12 +935,75 @@ branches:['dim0'],
       },
     
     },
+    milestones:{
+        1:{
+             effectDescription:"Auto buy first row buyable",
+             requirementDescription:"10,000 Lines",
+             done(){return player.dim1.points.gte(1e4)},
+        }
+    },
       update(diff){
           
           player.dim1.spellTime[0]=Math.max(player.dim1.spellTime[0]-diff,0)
           player.dim1.spellTime[1]=Math.max(player.dim1.spellTime[1]-diff,0)
+
+          
+      },
+      spell2Eff(){
+        let eff=D(8)
+        if(hasMilestone('e',1))eff=eff.pow(2)
+        return eff
       }
 })
+addLayer("e", {
+    symbol: "E", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: false,
+		points: new Decimal(0),
+    }},
+    color: "#7ad6b5",
+    requires(){return new Decimal("1e15")}, 
+    resource: "Exponentiation", // Name of prestige currency
+    baseResource: "Multiplication", // Name of resource prestige is based on
+    baseAmount() {return player.m.points}, // Get the current amount of baseResource
+    type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already hav
+    base(){
+        return 100
+    },
+    exponent(){
+    
+        return 1.5
+    },
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        let mult = new Decimal(1)
+        return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    row: 2, // Row the layer is in on the tree (0 is the first row)
+    layerShown(){return player.e.unlocked||player.dim1.unlocked},
+    branches:['m'],
+    milestones: {
+        1: {
+            requirementDescription: "1 Exponentiation",
+            effectDescription: "Raise Mdel in L layer effect to the power of 2.",
+            done() { return player.e.points.gte(1) },
+        },
+        2: {
+            requirementDescription: "2 Exponentiation",
+            effectDescription: "Add 0.25 to DmD in DO layer base.",
+            done() { return player.e.points.gte(2) },
+        },
+        3: {
+            requirementDescription: "3 Exponentiation",
+            effectDescription: "Division gain is boosted by DD in DO layer amount.",
+            done() { return player.e.points.gte(2) },
+        },
+    },
+}),
+
 addLayer("ach", {
     symbol: "A", // This appears on the layer's node. Default is the id with the first letter capitalized
     position: 1, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order

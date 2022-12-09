@@ -8,16 +8,19 @@ let modInfo = {
 	discordName: "",
 	discordLink: "",
 	initialStartPoints: new Decimal (0), // Used for hard resets and new players
-	offlineLimit: 1,  // In hours
+	offlineLimit: 0.1,  // In hours
 }
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0.6",
-	name: "Dimensional stuff",
+	num: "0.0.7",
+	name: "2 Dimensional stuff",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+<h3>v0.0.7</h3><br>
+- Added E<br>
+- Endgame: 1e12 L<br>
 <h3>v0.0.6</h3><br>
 - Added DO and L<br>
 - Endgame: 1e15 M<br>
@@ -89,7 +92,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.m.points.gte(1e15)
+	return player.dim1.points.gte(1e12)
 }
 
 
