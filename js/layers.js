@@ -33,7 +33,7 @@ addLayer("n", {
         if(hasChallenge('m',12))mult=mult.times(tmp.m.mpEff)
         mult=mult.times(D(3).pow(D(player.d.eff2).pow(0.8)))   
         if(hasMilestone('d',3))mult=mult.times(D(10).pow(D(player.d.eff1).pow(0.6)).pow(0.5))     
-        if(hasMilestone('dim2',1))mult=mult.times(3)
+        if(hasMilestone('dim2',1))mult=mult.times(D(1).add(D(2).times(player.dim2.points)))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -665,7 +665,7 @@ addLayer("dim0", {
         mult=mult.times(tmp.dim0.buyables[22].effect)
         if(hasUpgrade('n',41))mult=mult.times(upgradeEffect('n',41))
         if(hasUpgrade('dim0',23))mult=mult.times(5)
-        if(hasMilestone('dim2',1))mult=mult.times(3)
+        if(hasMilestone('dim2',1))mult=mult.times(D(1).add(D(2).times(player.dim2.points)))
         if(player.dim1.spellTime[0]!=0)mult=mult.times(8)
         return mult
     },
@@ -1058,7 +1058,7 @@ addLayer("dim2", {
     milestones: {
         1: {
             requirementDescription: "1 Shapes",
-            effectDescription: "Generate 10^Shape milestone amount% number on reset per second (hardcap at 1e6%). Also dot and number gain x3 and start with a building power",
+            effectDescription: "Generate 10^Shape milestone amount% number on reset per second (hardcap at 1e6%). Also dot and number gain is boosted by shape and start with a building power",
             done() { return player.dim2.points.gte(1) },
         },
         2: {
