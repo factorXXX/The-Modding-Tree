@@ -33,6 +33,7 @@ addLayer("n", {
         if(hasChallenge('m',12))mult=mult.times(tmp.m.mpEff)
         mult=mult.times(D(3).pow(D(player.d.eff2).pow(0.8)))   
         if(hasMilestone('d',3))mult=mult.times(D(10).pow(D(player.d.eff1).pow(0.6)).pow(0.5))     
+        if(hasMilestone('dim2',1))mult=mult.times(D(1).add(D(2).times(player.dim2.points)))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -261,7 +262,12 @@ addLayer("n", {
     },
     branches:['a','s'],
     autoUpgrade(){return hasMilestone('m',2)},
-    passiveGeneration(){return hasMilestone('d',1)?tmp.d.effect.pow(2).times(0.01):0}
+    passiveGeneration(){
+        let num=D(0)
+        if(hasMilestone('d',1))num=num.add(tmp.d.effect.pow(2).times(0.01))
+        if(hasMilestone('dim2',1))num=num.add(D(10).pow(player.dim2.milestones.length).times(0.01).min(1e6))
+        return num
+    }
 })
 addLayer("a", {
     symbol: "A", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -410,7 +416,7 @@ addLayer("m", {
 		points: new Decimal(0),
         mp:new Decimal(0)
     }},
-    requires(){if(player.d.points.gte(1)&&!player.m.points.gte(1)) return new Decimal("1e42")
+    requires(){if(player.d.points.gte(1)&&!player.m.points.gte(1)&&!hasMilestone('s',4)) return new Decimal("1e42")
     else return new Decimal("1e31")}, 
     color: "#c2a958",
     resource: "Multiplication", // Name of prestige currency
@@ -497,6 +503,12 @@ addLayer("m", {
         rewardDescription:"Number gain is boosted by multiplication point.",
         unlocked(){return hasMilestone('m',4)},
         },
+    },
+    passiveGeneration(){
+        let num=D(0)
+    
+        if(hasMilestone('dim2',4))num=num.add(D(2).pow(player.dim2.milestones.length).times(0.01).min(1024))
+        return num
     }
 })
 addLayer("d", {
@@ -508,7 +520,7 @@ addLayer("d", {
         eff1:"",
         eff2:"",
     }},
-    requires(){if(player.m.points.gte(1)&&!player.d.points.gte(1)) return new Decimal("21")
+    requires(){if(player.m.points.gte(1)&&!player.d.points.gte(1)&&!hasMilestone('s',4)) return new Decimal("21")
     else return new Decimal("18")}, 
     color: "#dfa2f6",
     resource: "Division", // Name of prestige currency
@@ -620,6 +632,12 @@ addLayer("d", {
         },
     },
     shouldRoundUp:true,
+    passiveGeneration(){
+        let num=D(0)
+    
+        if(hasMilestone('dim2',3))num=num.add(D(2).pow(player.dim2.milestones.length).times(0.01).min(1024))
+        return num
+    }
 })
 addLayer("dim0", {
     symbol: "DO", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -647,6 +665,7 @@ addLayer("dim0", {
         mult=mult.times(tmp.dim0.buyables[22].effect)
         if(hasUpgrade('n',41))mult=mult.times(upgradeEffect('n',41))
         if(hasUpgrade('dim0',23))mult=mult.times(5)
+        if(hasMilestone('dim2',1))mult=mult.times(D(1).add(D(2).times(player.dim2.points)))
         if(player.dim1.spellTime[0]!=0)mult=mult.times(8)
         return mult
     },
@@ -661,7 +680,7 @@ addLayer("dim0", {
       return gain
     },
     row: 2, // Row the layer is in on the tree (0 is the first row)
-    layerShown(){return player.m.points.gte(1)&&player.d.points.gte(1)},
+    layerShown(){return player.m.points.gte(1)&&player.d.points.gte(1)||player.dim0.unlocked},
     tabFormat:[
         "main-display",
         "resource-display",
@@ -794,7 +813,6 @@ addLayer("dim0", {
             }
         },
     },
-
     upgrades:{
         11:{
             description:"Make dot boost multiplication point gain.",
@@ -839,7 +857,7 @@ addLayer("dim0", {
             unlocked(){return hasUpgrade(this.layer,22)},
         },
         24:{
-            description:"Unlock Shape. (next update)",
+            description:"Unlock Shape.",
             cost:D(1e11),
             currencyDisplayName:"lines",
             currencyInternalName:"points",
@@ -849,8 +867,15 @@ addLayer("dim0", {
     },
     doReset(resettingLayer){
         let keep = []
-        if(hasUpgrade('dim0',23))keep.push('upgrades')
-        if(layers[resettingLayer].row> this.row||resettingLayer=="dim1")layerDataReset(this.layer, keep)
+        if(layers[resettingLayer].row> this.row||resettingLayer=="dim1"){
+        let upgk = 0
+            if (hasMilestone("dim2", 2)) upgk = player.dim2.times
+            keep.push("upgrades")
+            layerDataReset(this.layer, keep)
+            if(hasUpgrade('dim0',23)&&resettingLayer=="dim1")return;
+            player[this.layer].upgrades = player[this.layer].upgrades.slice(0, upgk)
+        }            
+        
     },
     update(diff){
         if(player.points.gte(1e50)&&!player.dim0.unlocked)player.dim0.unlocked=true
@@ -864,6 +889,8 @@ addLayer("dim0", {
             if(tmp.dim0.buyables[21].canAfford) setBuyableAmount(this.layer, 21, getBuyableAmount(this.layer, 21).add(1))
         if(tmp.dim0.buyables[22].canAfford) setBuyableAmount(this.layer, 22, getBuyableAmount(this.layer, 22).add(1))
         }
+        if(player.points.gte(1e50)&&!player.dim0.unlocked)player.dim0.unlocked=true
+
     }
 })
 addLayer("dim1", {
@@ -1002,7 +1029,66 @@ addLayer("e", {
         },
     },
 }),
-
+addLayer("dim2", {
+    symbol: "SH", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: false,
+		points: new Decimal(0),
+        times:0,
+    }},
+    color: "#a92fdd",
+    requires(){return new Decimal("1e12")}, 
+    resource: "Shapes", // Name of prestige currency
+    baseResource: "Lines", // Name of resource prestige is based on
+    baseAmount() {return player.dim1.points}, // Get the current amount of baseResource
+    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already hav
+    exponent(){
+        return 0.13
+    },
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        let mult = new Decimal(1)
+        return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    row: 4, // Row the layer is in on the tree (0 is the first row)
+    layerShown(){return hasUpgrade('dim0',24)||player.dim2.unlocked},
+    branches:['dim1'],
+    milestones: {
+        1: {
+            requirementDescription: "1 Shapes",
+            effectDescription: "Generate 10^Shape milestone amount% number on reset per second (hardcap at 1e6%). Also dot and number gain is boosted by shape and start with a building power",
+            done() { return player.dim2.points.gte(1) },
+        },
+        2: {
+            requirementDescription: "2 Shapes",
+            effectDescription: "Point gain x4, keep a dot upgrade per shape reset.",
+            done() { return player.dim2.points.gte(2) },
+        },
+        3: {
+            requirementDescription: "3 Shapes",
+            effectDescription: "Gain 2^Shape milestone amount% division on reset per second (hardcap at 1024%).",
+            done() { return player.dim2.points.gte(3) },
+        },
+        4: {
+            requirementDescription: "5 Shapes",
+            effectDescription: "Gain 2^Shape milestone amount% multiplaction on reset per second (hardcap at 1024%). And both M and D req wont change.",
+            done() { return player.dim2.points.gte(5) },
+        },
+        5: {
+            requirementDescription: "8 Shapes",
+            effectDescription: "WIP.",
+            done() { return player.dim2.points.gte(8) },
+        },
+    },
+    onPrestige() {
+        let reset=1
+              player[this.layer].times += reset
+          },
+        
+}),
 addLayer("ach", {
     symbol: "A", // This appears on the layer's node. Default is the id with the first letter capitalized
     position: 1, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order

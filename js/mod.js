@@ -13,11 +13,14 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0.7",
+	num: "0.0.8",
 	name: "2 Dimensional stuff",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+<h3>v0.0.8</h3><br>
+- Added SH<br>
+- Endgame: 8 SH<br>
 <h3>v0.0.7</h3><br>
 - Added E<br>
 - Endgame: 1e12 L<br>
@@ -79,6 +82,7 @@ function getPointGen() {
 	gain=gain.times(tmp.m.mpEff)
 	gain=gain.times(D(10).pow(D(player.d.eff1).pow(0.8)))
 	if(hasMilestone('d',2))gain=gain.times(D(3).pow(D(player.d.eff2).pow(0.8)))
+	if(hasMilestone('dim2',2))gain=gain.times(4)
 	return gain
 }
 
@@ -92,7 +96,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.dim1.points.gte(1e12)
+	return player.dim2.points.gte(8)
 }
 
 
