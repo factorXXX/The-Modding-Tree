@@ -13,11 +13,13 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0.8",
+	num: "0.0.9",
 	name: "2 Dimensional stuff",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+<h3>v0.0.9</h3><br>
+- Endgame: 9 SH upgrades<br>
 <h3>v0.0.8</h3><br>
 - Added SH<br>
 - Endgame: 8 SH<br>
@@ -96,7 +98,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.dim2.points.gte(8)
+	return player.dim2.upgrades.length>=9
 }
 
 

@@ -261,7 +261,7 @@ addLayer("n", {
         layerDataReset(this.layer, keep)
     },
     branches:['a','s'],
-    autoUpgrade(){return hasMilestone('m',2)},
+    autoUpgrade(){return hasMilestone('m',2)||hasUpgrade('dim2',22)},
     passiveGeneration(){
         let num=D(0)
         if(hasMilestone('d',1))num=num.add(tmp.d.effect.pow(2).times(0.01))
@@ -341,7 +341,7 @@ addLayer("a", {
             done() { return player.a.points.gte(21) },
         },
     },
-    autoPrestige(){return hasMilestone('m',3)},
+    autoPrestige(){return hasMilestone('m',3)||hasUpgrade('dim2',21)},
    resetsNothing(){return hasUpgrade('dim0',12)},
    milestonePopups(){return !hasMilestone('m',3)},
 }),
@@ -403,7 +403,7 @@ addLayer("s", {
         },
     },
     canBuyMax(){return hasAchievement('ach',23)},
-    autoPrestige(){return hasMilestone('d',5)},
+    autoPrestige(){return hasMilestone('d',5)||hasUpgrade('dim2',21)},
     layerShown(){return player.a.unlocked||player.s.unlocked||hasUpgrade('n',55)},
     resetsNothing(){return hasUpgrade('dim0',12)},
     milestonePopups(){return !hasMilestone('d',5)},
@@ -509,7 +509,14 @@ addLayer("m", {
     
         if(hasMilestone('dim2',4))num=num.add(D(2).pow(player.dim2.milestones.length).times(0.01).min(1024))
         return num
-    }
+    },
+    doReset(resettingLayer){
+        let keep = []
+        if(layers[resettingLayer].row> this.row){
+  if(hasUpgrade('dim2',22))keep.push("challenges")
+            layerDataReset(this.layer, keep)
+        }                   
+    },
 })
 addLayer("d", {
     symbol: "D", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -612,6 +619,11 @@ addLayer("d", {
         }
         if(inChallenge('d',11))player.points=player.points.min(getPointGen())
         if(inChallenge('d',12))player.n.points=player.n.points.min(tmp.n.resetGain)
+
+        if(hasUpgrade('dim2',42)){
+            player.d.eff1=tmp.d.effect.sub(1)
+            player.d.eff2=D(1)
+        }
     },
     challenges:{
         11:{
@@ -637,7 +649,14 @@ addLayer("d", {
     
         if(hasMilestone('dim2',3))num=num.add(D(2).pow(player.dim2.milestones.length).times(0.01).min(1024))
         return num
-    }
+    },
+    doReset(resettingLayer){
+        let keep = []
+        if(layers[resettingLayer].row> this.row){
+  if(hasUpgrade('dim2',22))keep.push("challenges")
+            layerDataReset(this.layer, keep)
+        }                   
+    },
 })
 addLayer("dim0", {
     symbol: "DO", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -666,7 +685,9 @@ addLayer("dim0", {
         if(hasUpgrade('n',41))mult=mult.times(upgradeEffect('n',41))
         if(hasUpgrade('dim0',23))mult=mult.times(5)
         if(hasMilestone('dim2',1))mult=mult.times(D(1).add(D(2).times(player.dim2.points)))
+        if(hasMilestone('dim2',6))mult=mult.times(10)
         if(player.dim1.spellTime[0]!=0)mult=mult.times(8)
+        if(hasUpgrade('dim2',11))mult=mult.times(upgradeEffect('dim2',11))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -821,7 +842,7 @@ addLayer("dim0", {
             effectDisplay(){return format(upgradeEffect('dim0',11))+"x"}
         },
         12:{
-            description:"Make both A and D reset nothing.",
+            description:"Make both A and S reset nothing.",
             cost:D(1e32),
             unlocked(){return hasUpgrade(this.layer,11)}
         },
@@ -858,7 +879,7 @@ addLayer("dim0", {
         },
         24:{
             description:"Unlock Shape.",
-            cost:D(1e11),
+            cost:D(5e10),
             currencyDisplayName:"lines",
             currencyInternalName:"points",
             currencyLayer:"dim1",
@@ -872,13 +893,15 @@ addLayer("dim0", {
             if (hasMilestone("dim2", 2)) upgk = player.dim2.times
             keep.push("upgrades")
             layerDataReset(this.layer, keep)
+            
             if(hasUpgrade('dim0',23)&&resettingLayer=="dim1")return;
             player[this.layer].upgrades = player[this.layer].upgrades.slice(0, upgk)
+            
         }            
         
     },
     update(diff){
-        if(hasMilestone('dim1',1)){
+        if(hasMilestone('dim1',1)||hasUpgrade('dim2',33)){
             if(tmp.dim0.buyables[11].canAfford) setBuyableAmount(this.layer, 11, getBuyableAmount(this.layer, 11).add(1))
         if(tmp.dim0.buyables[12].canAfford) setBuyableAmount(this.layer, 12, getBuyableAmount(this.layer, 12).add(1))
         if(tmp.dim0.buyables[13].canAfford) setBuyableAmount(this.layer, 13, getBuyableAmount(this.layer, 13).add(1))
@@ -932,7 +955,7 @@ branches:['dim0'],
     {
         11:{
         title(){return `Super dot division<br><small><small>Cosume 1 line, boost your dot gain by 8 for 20 seconds.<br>Time: ${format(player.dim1.spellTime[0])}s</small></small>`},
-        canClick(){return player.dim1.points.gte(1)},
+        canClick(){return player.dim1.points.gte(1)&&player.dim1.spellTime[0]==0},
         onClick(){
             player.dim1.spellTime[0]=20
             player.dim1.points=player.dim1.points.sub(1)
@@ -946,7 +969,7 @@ branches:['dim0'],
       },
       12:{
         title(){return `Multiple dot equals line<br><small><small>Cosume 1 line, boost your multiplcation gain by ${format(tmp.dim1.spell2Eff)} for 40 seconds.<br>Time: ${format(player.dim1.spellTime[1])}s</small></small>`},
-        canClick(){return player.dim1.points.gte(1)},
+        canClick(){return player.dim1.points.gte(1)&&player.dim1.spellTime[1]==0},
         onClick(){
             player.dim1.spellTime[1]=40
             player.dim1.points=player.dim1.points.sub(1)
@@ -972,13 +995,21 @@ branches:['dim0'],
           player.dim1.spellTime[0]=Math.max(player.dim1.spellTime[0]-diff,0)
           player.dim1.spellTime[1]=Math.max(player.dim1.spellTime[1]-diff,0)
 
-          
+          if(hasUpgrade('dim2',42)){clickClickable("dim1", 11);clickClickable("dim1", 12)}
       },
       spell2Eff(){
         let eff=D(8)
         if(hasMilestone('e',1))eff=eff.pow(2)
         return eff
-      }
+      },
+      doReset(resettingLayer){
+        let keep = []
+        if(layers[resettingLayer].row> this.row){
+            layerDataReset(this.layer, keep)
+            if(hasUpgrade('dim2',31))player.dim1.points=D(9999)
+         }            
+        
+    },
 })
 addLayer("e", {
     symbol: "E", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -1024,9 +1055,10 @@ addLayer("e", {
         3: {
             requirementDescription: "3 Exponentiation",
             effectDescription: "Division gain is boosted by DD in DO layer amount.",
-            done() { return player.e.points.gte(2) },
+            done() { return player.e.points.gte(3) },
         },
     },
+    autoPrestige(){return hasUpgrade('dim2',42)}
 }),
 addLayer("dim2", {
     symbol: "SH", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -1035,9 +1067,12 @@ addLayer("dim2", {
         unlocked: false,
 		points: new Decimal(0),
         times:0,
+        ans:0,
+        angles:[30,30],
+        triangle: new Decimal(0),
     }},
     color: "#a92fdd",
-    requires(){return new Decimal("1e12")}, 
+    requires(){return new Decimal("2.5e11")}, 
     resource: "Shapes", // Name of prestige currency
     baseResource: "Lines", // Name of resource prestige is based on
     baseAmount() {return player.dim1.points}, // Get the current amount of baseResource
@@ -1078,15 +1113,143 @@ addLayer("dim2", {
         },
         5: {
             requirementDescription: "8 Shapes",
-            effectDescription: "WIP.",
+            effectDescription: "Unlock Triangle.",
             done() { return player.dim2.points.gte(8) },
+        },
+        6: {
+            requirementDescription: "7 Shapes Upgrades",
+            effectDescription: "Dots are too slow! Why not boost their gain by 10?",
+            done() { return player.dim2.upgrades.length>=7},
         },
     },
     onPrestige() {
         let reset=1
-              player[this.layer].times += reset
-          },
+        player[this.layer].times += reset
         
+    },
+tabFormat:{
+    "Milestones":{
+      content:[
+        "main-display",
+        "prestige-button",
+        "resource-display",
+        "blank",
+        "milestones",
+      ],     
+    },
+    "Triangle":{
+        content:[
+          "main-display",
+          "prestige-button",
+          "resource-display",
+          "blank",
+          ["display-text",()=>"Make a Tringle by entering a correct angle!"],
+          "blank",
+          ["row",[["display-text",()=>player.dim2.angles[0]+"°, "+player.dim2.angles[1]+"°, "],["text-input",["ans"]]]],
+          "blank",
+          ["display-text",()=>`You have ${player.dim2.triangle} Triangles.`],
+          "blank",
+          ["upgrade",11],
+          "blank",
+          ["row",[["upgrade",21],"blank",["upgrade",22]]],
+          "blank",
+          ["row",[["upgrade",31],"blank",["upgrade",32],"blank",["upgrade",33]]],
+          "blank",
+          ["row",[["upgrade",41],"blank",["upgrade",42]]],
+          "blank",
+          ["upgrade",51],
+        ],     
+      },
+},
+update(diff){
+    if(!isNaN(player.dim2.ans)){
+        if(player.dim2.angles[0]+player.dim2.angles[1]+player.dim2.ans==180){
+            player.dim2.triangle=player.dim2.triangle.add(1)
+            let mult=1
+            if(hasUpgrade('dim2',32))mult=10
+            let ans=Math.floor(Math.random()*(160/mult)+1)*mult
+            let angle1=Math.floor(Math.random()*((160/mult)-(ans/(mult)))+1)*mult
+            let angle2=180-ans-angle1
+            player.dim2.angles[0]=angle1
+            player.dim2.angles[1]=angle2
+            player.dim2.ans=""
+        }
+    }
+},
+upgrades:{
+    11:{
+        description:"Triangle boost dots gain.",
+        effect(){return player.dim2.triangle.add(1).pow(0.55)},
+        effectDisplay(){return format(upgradeEffect('dim2',11))+"x"},
+        cost:D(15),
+        currencyDisplayName:"Triagnles",
+        currencyLayer:"dim2",
+        currencyInternalName:"triangle",
+    },
+    21:{
+        description:"Auto buy Addition and Subtraction, but you can not buy 22.",
+        cost:D(25),
+        currencyDisplayName:"Triagnles",
+        currencyLayer:"dim2",
+        currencyInternalName:"triangle",
+        branches:[11],
+        canAfford(){return (!hasUpgrade('dim2',22)||hasUpgrade('dim2',41))&&hasUpgrade('dim2',11)}
+    },
+    22:{
+        description:"Auto buy Number upgrade and do M and D challenges, but you can not buy 21.",
+        cost:D(25),
+        currencyDisplayName:"Triagnles",
+        currencyLayer:"dim2",
+        currencyInternalName:"triangle",
+        branches:[11],
+        canAfford(){return (!hasUpgrade('dim2',21)||hasUpgrade('dim2',41))&&hasUpgrade('dim2',11)}
+    },
+    31:{
+        description:"Start with 9999 lines, but you can not buy 33.",
+        cost:D(40),
+        currencyDisplayName:"Triagnles",
+        currencyLayer:"dim2",
+        currencyInternalName:"triangle",
+        branches:[21,33],
+        canAfford(){return (!hasUpgrade('dim2',33)||hasUpgrade('dim2',41))&&(hasUpgrade('dim2',21)||hasUpgrade('dim2',32))}
+    },
+    32:{
+        description:"Your angle is always a multiple of 10.",
+        cost:D(4),
+        branches:[21,22],
+        canAfford(){return (hasUpgrade('dim2',21)||hasUpgrade('dim2',22))}
+    },
+    33:{
+        description:"Always Auto buy first row dot buyable, but you can not buy 31.",
+        cost:D(40),
+        currencyDisplayName:"Triagnles",
+        currencyLayer:"dim2",
+        currencyInternalName:"triangle",
+        branches:[22,33],
+        canAfford(){return (!hasUpgrade('dim2',31)||hasUpgrade('dim2',41))&&(hasUpgrade('dim2',22)||hasUpgrade('dim2',32))}
+    },
+    41:{
+        description:"You can buy all row 2 and row 3 upgrade.",
+        cost:D(8),
+        branches:[31,32],
+        canAfford(){return hasUpgrade('dim2',31)&&hasUpgrade('dim2',32)}
+    },
+    42:{
+        description:"Auto distribude Division, buy Exponentiation and cast spells.",
+        cost:D(75),
+        currencyDisplayName:"Triagnles",
+        currencyLayer:"dim2",
+        currencyInternalName:"triangle",
+        branches:[32,33],
+        canAfford(){return hasUpgrade('dim2',32)&&hasUpgrade('dim2',33)}
+    },
+    51:{
+        description:"Unlock sin, cos and tan.",
+        cost:D(12),
+        branches:[41,42],
+        canAfford(){return hasUpgrade('dim2',41)&&hasUpgrade('dim2',42)}
+    },
+}
 }),
 addLayer("ach", {
     symbol: "A", // This appears on the layer's node. Default is the id with the first letter capitalized
