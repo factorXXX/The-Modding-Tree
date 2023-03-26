@@ -1232,7 +1232,7 @@ upgrades:{
         description:"You can buy all row 2 and row 3 upgrade.",
         cost:D(8),
         branches:[31,32],
-        canAfford(){return hasUpgrade('dim2',31)&&hasUpgrade('dim2',32)}
+        canAfford(){return hasUpgrade('dim2',32)}
     },
     42:{
         description:"Auto distribude Division, buy Exponentiation and cast spells.",
@@ -1241,7 +1241,7 @@ upgrades:{
         currencyLayer:"dim2",
         currencyInternalName:"triangle",
         branches:[32,33],
-        canAfford(){return hasUpgrade('dim2',32)&&hasUpgrade('dim2',33)}
+        canAfford(){return hasUpgrade('dim2',32)}
     },
     51:{
         description:"Unlock sin, cos and tan.",
