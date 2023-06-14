@@ -55,21 +55,24 @@ addLayer("spider", {
         getStyle(data, id){
            if(player.spider.blockList.includes(id)) return {
                 "background-color":"#cc6464",
-                "min-height":"24px",
-                "min-width":"24px",
+                "min-height":"40px",
+                "min-width":"40px",
                 "margin-left":"-2px",
+                'border':"0px"
             }
             if(player.spider.player==id) return {
                 "background-color":"#cc64cc",
-                "min-height":"24px",
-                "min-width":"24px",
+                "min-height":"40px",
+                "min-width":"40px",
                 "margin-left":"-2px",
+                'border':"0px"
             }
            return {
                 "background-color":"#dddddd",
-                "min-height":"24px",
-                "min-width":"24px",
+                "min-height":"40px",
+                "min-width":"40px",
                 "margin-left":"-2px",
+                'border':"0px"
             }
         }
     },
