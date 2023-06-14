@@ -13,9 +13,7 @@ addLayer("spider", {
         gravity:false,
         realY:0,
         drop_acc:0,
-        jumping:false,
-        score:0,
-        highest:0,
+        jumping:false
     }},
     color: "#4BDC13",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -78,7 +76,7 @@ addLayer("spider", {
     },
     clickables:{
 11:{
-    display:"Teleport",
+    display:"Move",
     canClick:true,
     onClick(){
         player.spider.gravity=!player.spider.gravity
@@ -97,9 +95,8 @@ addLayer("spider", {
 }
     },
     layerShown(){return true},
-    tabFormat:["grid",'blank','clickables','blank',['display-text',function(){return "Score: "+Math.floor(player.spider.score)+" Highest: "+Math.floor(player.spider.highest)}]],
+    tabFormat:["grid",'blank','clickables'],
     update(diff){
-        player.spider.score+=50*diff
         player.spider.xpos+=45*diff
         player.spider.extraXpos+=45*diff
          if(player.spider.extraXpos>=10){
@@ -124,14 +121,12 @@ addLayer("spider", {
          
 
          if(player.spider.blockList.includes(player.spider.player)){
-            player.spider.highest=Math.max(player.spider.highest,player.spider.score)
             player.spider.xpos=0
             player.spider.extraXpos=3
             player.spider.blockList=[]
             player.spider.player=2104
             player.spider.gravity=false
             player.spider.realY=0
-            player.spider.score=0
          } //Death
 
          if(player.spider.realY>0&&!player.spider.jumping&&!player.spider.gravity){

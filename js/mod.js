@@ -1,13 +1,13 @@
 let modInfo = {
-	name: "The Minigame Tree",
-	id: "spidercube",
-	author: "3^3=7",
+	name: "The ??? Tree",
+	id: "mymod",
+	author: "nobody",
 	pointsName: "points",
 	modFiles: ["layers.js", "tree.js"],
 
 	discordName: "",
 	discordLink: "",
-	initialStartPoints: new Decimal (0), // Used for hard resets and new players
+	initialStartPoints: new Decimal (10), // Used for hard resets and new players
 	offlineLimit: 0,  // In hours
 }
 
@@ -34,7 +34,7 @@ function getStartPoints(){
 
 // Determines if it should show points/sec
 function canGenPoints(){
-	return false
+	return true
 }
 
 // Calculate points/sec!
@@ -42,7 +42,7 @@ function getPointGen() {
 	if(!canGenPoints())
 		return new Decimal(0)
 
-	let gain = new Decimal(0)
+	let gain = new Decimal(1)
 	return gain
 }
 
