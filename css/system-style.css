@@ -1,5 +1,5 @@
 * {
-	transition-duration: 0.5s;
+	transition-duration: 0s;
 	text-align: center;
 	font-family: "Inconsolata", monospace;
 	font-weight: bold;
@@ -39,7 +39,7 @@ td {
 	justify-content: center;
 	align-items: center;
 	max-width: 100%;
-	margin: 0 auto;
+	margin-top: -10px;
 }
 
 .upgAlign {
