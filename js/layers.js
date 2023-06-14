@@ -9,7 +9,7 @@ addLayer("spider", {
         extraXpos:0,
         extraX2pos:0,
         blockList:[],
-        player:702,
+        player:2104,
         gravity:false,
         realY:0,
         drop_acc:0,
@@ -36,8 +36,8 @@ addLayer("spider", {
         {key: "p", description: "P: Reset for prestige points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
     grid: {
-        rows: 14, // If these are dynamic make sure to have a max value as well!
-        cols: 20,
+        rows: 21, // If these are dynamic make sure to have a max value as well!
+        cols: 30,
         getStartData(id) {
             return 0
         },
@@ -55,21 +55,24 @@ addLayer("spider", {
         getStyle(data, id){
            if(player.spider.blockList.includes(id)) return {
                 "background-color":"#cc6464",
-                "min-height":"24px",
-                "min-width":"24px",
+                "min-height":"30px",
+                "min-width":"30px",
                 "margin-left":"-2px",
+                'border':'0px'
             }
             if(player.spider.player==id) return {
                 "background-color":"#cc64cc",
-                "min-height":"24px",
-                "min-width":"24px",
+                "min-height":"30px",
+                "min-width":"30px",
                 "margin-left":"-2px",
+                'border':'0px'
             }
            return {
                 "background-color":"#dddddd",
-                "min-height":"24px",
-                "min-width":"24px",
+                "min-height":"30px",
+                "min-width":"30px",
                 "margin-left":"-2px",
+                'border':'0px'
             }
         }
     },
@@ -79,7 +82,7 @@ addLayer("spider", {
     canClick:true,
     onClick(){
         player.spider.gravity=!player.spider.gravity
-        if(player.spider.gravity)player.spider.realY=65
+        if(player.spider.gravity)player.spider.realY=110
         else player.spider.realY=0
         player.spider.jumping=false
     },
@@ -88,8 +91,8 @@ addLayer("spider", {
     display:"Jump",
     canClick:true,
     onClick(){
-        if(player.spider.realY<=0&&!player.spider.gravity)jumpSpider(9)
-        if(player.spider.realY>=65&&player.spider.gravity)jumpSpiderR(9)      
+        if(player.spider.realY<=0&&!player.spider.gravity)jumpSpider(14)
+        if(player.spider.realY>=65&&player.spider.gravity)jumpSpiderR(14)      
     },
 }
     },
@@ -111,10 +114,10 @@ addLayer("spider", {
         
         if(player.spider.extraX2pos>=3){
             player.spider.extraX2pos=0
-            if(Math.random()>=0.9){player.spider.blockList.push(121,122,123,124,125,126,127,1424,1425,1426,1427,1428,1429,1430);player.spider.extraX2pos=-10}
-          else  if(Math.random()>=0.7){player.spider.blockList.push(121,122,123,124,125,222,223,224,1421,1422,1423,1424,1425,1322,1323,1324);player.spider.extraX2pos=-10}
-           else if(Math.random()>=0.35){player.spider.blockList.push(120,220,320,420,520,620,720,820,920,1020)}
-           else player.spider.blockList.push(1420,1320,1220,1120,1020,920,820,720,620)       
+            if(Math.random()>=0.9){player.spider.blockList.push(121,122,123,124,125,126,127,2124,2125,2126,2127,2128,2129,2130);player.spider.extraX2pos=-10}
+          else  if(Math.random()>=0.7){player.spider.blockList.push(121,122,123,124,125,222,223,224,2121,2122,2123,2124,2125,2022,2023,2024);player.spider.extraX2pos=-10}
+           else if(Math.random()>=0.35){player.spider.blockList.push(120,220,320,420,520,620,720,820,920,1020,1120,1220,1320,1420)}
+           else player.spider.blockList.push(2120,2020,1920,1820,1720,1620,1520,1420,1320,1220,1120,1020,920,820)       
          } //Add new blocks
          
          
@@ -125,27 +128,27 @@ addLayer("spider", {
             player.spider.xpos=0
             player.spider.extraXpos=3
             player.spider.blockList=[]
-            player.spider.player=1404
+            player.spider.player=2104
             player.spider.gravity=false
             player.spider.realY=0
             player.spider.score=0
          } //Death
 
          if(player.spider.realY>0&&!player.spider.jumping&&!player.spider.gravity){
-            player.spider.drop_acc+=110*diff
+            player.spider.drop_acc+=200*diff
             player.spider.realY-=(player.spider.drop_acc*diff)
             player.spider.realY=Math.max(0,player.spider.realY)
             console.log(player.spider.realY)
          } //Jumping
          
          if(player.spider.realY<65&&!player.spider.jumping&&player.spider.gravity){
-            player.spider.drop_acc-=110*diff
+            player.spider.drop_acc-=200*diff
             player.spider.realY-=(player.spider.drop_acc*diff)
-            player.spider.realY=Math.min(65,player.spider.realY)
+            player.spider.realY=Math.min(110,player.spider.realY)
             console.log(player.spider.realY)
          } 
 
-         player.spider.player=1404-(Math.floor(player.spider.realY/5)*100)
+         player.spider.player=2104-(Math.floor(player.spider.realY/5)*100)
          player.spider.realY=Math.min(65,player.spider.realY)
          player.spider.realY=Math.max(0,player.spider.realY)
     }
@@ -155,20 +158,20 @@ addLayer("spider", {
 function jumpSpider(acc){
     if(acc<=0)return player.spider.jumping=false;
     player.spider.jumping=true
-    player.spider.drop_acc=0
+    player.spider.drop_acc=50
     let acc2=acc
-    player.spider.realY=player.spider.realY+(acc*0.2)
+    player.spider.realY=player.spider.realY+(acc*0.36)
     console.log(player.spider.realY)
-    acc2-=0.4
+    acc2-=0.7
     setTimeout(function(){jumpSpider(acc2)},50)
 }
 function jumpSpiderR(acc){
     if(acc<=0)return player.spider.jumping=false;
     player.spider.jumping=true
-    player.spider.drop_acc=0
+    player.spider.drop_acc=50
     let acc2=acc
-    player.spider.realY=player.spider.realY-(acc*0.2)
+    player.spider.realY=player.spider.realY-(acc*0.35)
     console.log(player.spider.realY)
-    acc2-=0.4
+    acc2-=0.7
     setTimeout(function(){jumpSpiderR(acc2)},50)
 }
