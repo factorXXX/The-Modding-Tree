@@ -52,22 +52,22 @@ addLayer("spider", {
         },
         getStyle(data, id){
            if(player.spider.blockList.includes(id)) return {
-                "background-color":"#ffffff",
-                "min-height":"16px",
-                "min-width":"0px",
-                "margin-left":"-1px",
+                "background-color":"#cc6464",
+                "min-height":"24px",
+                "min-width":"24px",
+                "margin-left":"-2px",
             }
             if(player.spider.player==id) return {
                 "background-color":"#cc64cc",
-                "min-height":"16px",
-                "min-width":"0px",
-                "margin-left":"-1px",
+                "min-height":"24px",
+                "min-width":"24px",
+                "margin-left":"-2px",
             }
            return {
-                "background-color":"#cc6464",
-                "min-height":"16px",
-                "min-width":"0px",
-                "margin-left":"-1px",
+                "background-color":"#dddddd",
+                "min-height":"24px",
+                "min-width":"24px",
+                "margin-left":"-2px",
             }
         }
     },
@@ -94,8 +94,8 @@ addLayer("spider", {
     layerShown(){return true},
     tabFormat:["grid",'blank','clickables'],
     update(diff){
-        player.spider.xpos+=40*diff
-        player.spider.extraXpos+=40*diff
+        player.spider.xpos+=45*diff
+        player.spider.extraXpos+=45*diff
          if(player.spider.extraXpos>=10){
             player.spider.extraX2pos++
             player.spider.extraXpos-=10
@@ -108,8 +108,8 @@ addLayer("spider", {
         
         if(player.spider.extraX2pos>=3){
             player.spider.extraX2pos=0
-            if(Math.random()>=0.9){player.spider.blockList.push(121,122,123,124,125,126,127,1424,1425,1426,1427,1428,1429,1430);player.spider.extraX2pos=-8}
-          else  if(Math.random()>=0.7){player.spider.blockList.push(121,122,123,124,125,222,223,224,1421,1422,1423,1424,1425,1322,1323,1324);player.spider.extraX2pos=-8}
+            if(Math.random()>=0.9){player.spider.blockList.push(121,122,123,124,125,126,127,1424,1425,1426,1427,1428,1429,1430);player.spider.extraX2pos=-10}
+          else  if(Math.random()>=0.7){player.spider.blockList.push(121,122,123,124,125,222,223,224,1421,1422,1423,1424,1425,1322,1323,1324);player.spider.extraX2pos=-10}
            else if(Math.random()>=0.35){player.spider.blockList.push(120,220,320,420,520,620,720,820,920,1020)}
            else player.spider.blockList.push(1420,1320,1220,1120,1020,920,820,720,620)       
          } //Add new blocks
@@ -119,7 +119,7 @@ addLayer("spider", {
 
          if(player.spider.blockList.includes(player.spider.player)){
             player.spider.xpos=0
-            player.spider.extraXpos=0
+            player.spider.extraXpos=3
             player.spider.blockList=[]
             player.spider.player=1404
             player.spider.gravity=false
@@ -162,8 +162,8 @@ function jumpSpiderR(acc){
     player.spider.jumping=true
     player.spider.drop_acc=0
     let acc2=acc
-    player.spider.realY=player.spider.realY-(acc*0.4)
+    player.spider.realY=player.spider.realY-(acc*0.2)
     console.log(player.spider.realY)
-    acc2-=0.8
+    acc2-=0.4
     setTimeout(function(){jumpSpiderR(acc2)},50)
 }
