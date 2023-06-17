@@ -1,6 +1,6 @@
 addLayer("spider", {
-    symbol: "P", // This appears on the layer's node. Default is the id with the first letter capitalized
-    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    symbol: "P",
+    position: 0,
     startData() { return {
         unlocked: true,
 		points: new Decimal(0),
@@ -18,39 +18,29 @@ addLayer("spider", {
         highest:0,
     }},
     color: "#4BDC13",
-    requires: new Decimal(10), // Can be a function that takes requirement increases into account
-    resource: "prestige points", // Name of prestige currency
-    baseResource: "points", // Name of resource prestige is based on
-    baseAmount() {return player.points}, // Get the current amount of baseResource
-    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-    exponent: 0.5, // Prestige currency exponent
-    gainMult() { // Calculate the multiplier for main currency from bonuses
-        mult = new Decimal(1)
-        return mult
-    },
-    gainExp() { // Calculate the exponent on main currency from bonuses
+    requires: new Decimal(10),
+    resource: "prestige points",
+    baseResource: "points",
+    baseAmount() {return player.points},
+    type: "normal",
+    exponent: 0.5,
+    gainMult() {
         return new Decimal(1)
     },
-    row: 0, // Row the layer is in on the tree (0 is the first row)
-    hotkeys: [
-        {key: "p", description: "P: Reset for prestige points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
-    ],
+    gainExp() {
+        return new Decimal(1)
+    },
+    row: 0,
     grid: {
-        rows: 14, // If these are dynamic make sure to have a max value as well!
+        rows: 14,
         cols: 20,
         getStartData(id) {
             return 0
-        },
-        getUnlocked(id) {
-            return true
         },
         getCanClick(data, id) {
             return false
         },
         onClick(data, id) { 
-        },
-        getDisplay(data, id) {
-            return ""
         },
         getStyle(data, id){
            if(player.spider.blockList.includes(id)) return {
@@ -158,20 +148,20 @@ addLayer("spider", {
 function jumpSpider(acc){
     if(acc<=0)return player.spider.jumping=false;
     player.spider.jumping=true
-    player.spider.drop_acc=0
+    player.spider.drop_acc=20
     let acc2=acc
-    player.spider.realY=player.spider.realY+(acc*0.2)
+    player.spider.realY=player.spider.realY+(acc*0.3)
     console.log(player.spider.realY)
-    acc2-=0.4
+    acc2-=0.6
     setTimeout(function(){jumpSpider(acc2)},50)
 }
 function jumpSpiderR(acc){
     if(acc<=0)return player.spider.jumping=false;
     player.spider.jumping=true
-    player.spider.drop_acc=0
+    player.spider.drop_acc=20
     let acc2=acc
-    player.spider.realY=player.spider.realY-(acc*0.2)
+    player.spider.realY=player.spider.realY-(acc*0.3)
     console.log(player.spider.realY)
-    acc2-=0.4
+    acc2-=0.6
     setTimeout(function(){jumpSpiderR(acc2)},50)
 }
