@@ -105,7 +105,7 @@ addLayer("spider", {
         if(player.spider.extraX2pos>=3){
             player.spider.extraX2pos=0
             if(Math.random()>=0.9){player.spider.blockList.push(121,122,123,124,125,126,127,1424,1425,1426,1427,1428,1429,1430);player.spider.extraX2pos=-10}
-          else  if(Math.random()>=0.7){player.spider.blockList.push(121,122,123,124,125,222,223,224,1421,1422,1423,1424,1425,1322,1323,1324);player.spider.extraX2pos=-10}
+          else  if(Math.random()>=0.7){player.spider.blockList.push(121,122,123,124,222,223,1421,1422,1423,1424,1322,1323);player.spider.extraX2pos=-10}
            else if(Math.random()>=0.35){player.spider.blockList.push(120,220,320,420,520,620,720,820,920,1020)}
            else player.spider.blockList.push(1420,1320,1220,1120,1020,920,820,720,620)       
          } //Add new blocks
@@ -123,22 +123,22 @@ addLayer("spider", {
             player.spider.realY=0
             player.spider.score=0
          } //Death
-
+         
          if(player.spider.realY>0&&!player.spider.jumping&&!player.spider.gravity){
-            player.spider.drop_acc+=80*diff
+            player.spider.drop_acc+=70*diff
             player.spider.realY-=(player.spider.drop_acc*diff)
-            console.log(player.spider.realY)
          } //Jumping
          
          if(player.spider.realY<65&&!player.spider.jumping&&player.spider.gravity){
-            player.spider.drop_acc-=80*diff
+            player.spider.drop_acc-=70*diff
             player.spider.realY-=(player.spider.drop_acc*diff)
-            console.log(player.spider.realY)
          } 
 
-         player.spider.player=1404-(Math.floor(player.spider.realY/5)*100)
          player.spider.realY=Math.min(65,player.spider.realY)
          player.spider.realY=Math.max(0,player.spider.realY)
+
+         player.spider.player=1404-(Math.floor(player.spider.realY/5)*100)
+         
     }
 
 
@@ -146,18 +146,18 @@ addLayer("spider", {
 function jumpSpider(acc){
     if(acc<=0)return player.spider.jumping=false;
     player.spider.jumping=true
-    player.spider.drop_acc=20
+    player.spider.drop_acc=15
     let acc2=acc
-    player.spider.realY=player.spider.realY+(acc*0.3)
-    acc2-=0.6
-    setTimeout(function(){jumpSpider(acc2)},50)
+    player.spider.realY=player.spider.realY+(acc*0.24)
+    acc2-=0.48
+    setTimeout(function(){jumpSpider(acc2)},40)
 }
 function jumpSpiderR(acc){
     if(acc<=0)return player.spider.jumping=false;
     player.spider.jumping=true
-    player.spider.drop_acc=-20
+    player.spider.drop_acc=-15
     let acc2=acc
-    player.spider.realY=player.spider.realY-(acc*0.3)
-    acc2-=0.6
-    setTimeout(function(){jumpSpiderR(acc2)},50)
+    player.spider.realY=player.spider.realY-(acc*0.24)
+    acc2-=0.48
+    setTimeout(function(){jumpSpiderR(acc2)},40)
 }
