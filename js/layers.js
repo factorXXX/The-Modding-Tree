@@ -4,12 +4,11 @@ addLayer("spider", {
     startData() { return {
         unlocked: true,
 		points: new Decimal(0),
-        cooldown:0,
         xpos:0,
         extraXpos:0,
         extraX2pos:0,
         blockList:[],
-        player:702,
+        player:1404,
         gravity:false,
         realY:0,
         drop_acc:0,
@@ -18,12 +17,8 @@ addLayer("spider", {
         highest:0,
     }},
     color: "#4BDC13",
-    requires: new Decimal(10),
     resource: "prestige points",
-    baseResource: "points",
-    baseAmount() {return player.points},
-    type: "normal",
-    exponent: 0.5,
+    type: "none",
     gainMult() {
         return new Decimal(1)
     },
@@ -104,9 +99,10 @@ addLayer("spider", {
         
         if(player.spider.extraX2pos>=3){
             player.spider.extraX2pos=0
-            if(Math.random()>=0.9){player.spider.blockList.push(121,122,123,124,125,126,127,1424,1425,1426,1427,1428,1429,1430);player.spider.extraX2pos=-10}
-          else  if(Math.random()>=0.7){player.spider.blockList.push(121,122,123,124,222,223,1421,1422,1423,1424,1322,1323);player.spider.extraX2pos=-10}
-           else if(Math.random()>=0.35){player.spider.blockList.push(120,220,320,420,520,620,720,820,920,1020)}
+            let rand=Math.random()
+            if(rand>=0.9){player.spider.blockList.push(121,122,123,124,125,126,127,1424,1425,1426,1427,1428,1429,1430);player.spider.extraX2pos=-10}
+          else  if(rand>=0.7){player.spider.blockList.push(121,122,123,124,222,223,1421,1422,1423,1424,1322,1323);player.spider.extraX2pos=-10}
+           else if(rand>=0.35){player.spider.blockList.push(120,220,320,420,520,620,720,820,920,1020)}
            else player.spider.blockList.push(1420,1320,1220,1120,1020,920,820,720,620)       
          } //Add new blocks
          
