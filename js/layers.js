@@ -90,8 +90,8 @@ addLayer("spider", {
     tabFormat:["grid",'blank','clickables','blank',['display-text',function(){return "Score: "+Math.floor(player.spider.score)+" Highest: "+Math.floor(player.spider.highest)}]],
     update(diff){
         player.spider.score+=50*diff
-        player.spider.xpos+=45*diff
-        player.spider.extraXpos+=45*diff
+        player.spider.xpos+=50*diff
+        player.spider.extraXpos+=50*diff
          if(player.spider.extraXpos>=10){
             player.spider.extraX2pos++
             player.spider.extraXpos-=10
@@ -125,16 +125,14 @@ addLayer("spider", {
          } //Death
 
          if(player.spider.realY>0&&!player.spider.jumping&&!player.spider.gravity){
-            player.spider.drop_acc+=110*diff
+            player.spider.drop_acc+=80*diff
             player.spider.realY-=(player.spider.drop_acc*diff)
-            player.spider.realY=Math.max(0,player.spider.realY)
             console.log(player.spider.realY)
          } //Jumping
          
          if(player.spider.realY<65&&!player.spider.jumping&&player.spider.gravity){
-            player.spider.drop_acc-=110*diff
+            player.spider.drop_acc-=80*diff
             player.spider.realY-=(player.spider.drop_acc*diff)
-            player.spider.realY=Math.min(65,player.spider.realY)
             console.log(player.spider.realY)
          } 
 
@@ -151,17 +149,15 @@ function jumpSpider(acc){
     player.spider.drop_acc=20
     let acc2=acc
     player.spider.realY=player.spider.realY+(acc*0.3)
-    console.log(player.spider.realY)
     acc2-=0.6
     setTimeout(function(){jumpSpider(acc2)},50)
 }
 function jumpSpiderR(acc){
     if(acc<=0)return player.spider.jumping=false;
     player.spider.jumping=true
-    player.spider.drop_acc=20
+    player.spider.drop_acc=-20
     let acc2=acc
     player.spider.realY=player.spider.realY-(acc*0.3)
-    console.log(player.spider.realY)
     acc2-=0.6
     setTimeout(function(){jumpSpiderR(acc2)},50)
 }
