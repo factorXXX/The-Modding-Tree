@@ -19,12 +19,8 @@ addLayer("spider", {
     color: "#4BDC13",
     resource: "prestige points",
     type: "none",
-    gainMult() {
-        return new Decimal(1)
-    },
-    gainExp() {
-        return new Decimal(1)
-    },
+    gainMult:new Decimal(1),
+    gainExp:new Decimal(1),
     row: 0,
     grid: {
         rows: 14,
@@ -109,7 +105,7 @@ addLayer("spider", {
          
          
 
-         if(player.spider.blockList.includes(player.spider.player)){
+         if(player.spider.blockList.includes(player.spider.player)||diff>1){
             player.spider.highest=Math.max(player.spider.highest,player.spider.score)
             player.spider.xpos=0
             player.spider.extraXpos=3
