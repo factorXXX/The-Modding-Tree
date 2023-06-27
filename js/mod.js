@@ -1,5 +1,5 @@
 let modInfo = {
-	name: "The Minigame Tree",
+	name: "Minigame in TMT",
 	id: "spidercube",
 	author: "3^3=7",
 	pointsName: "points",
