@@ -15,6 +15,7 @@ addLayer("spider", {
         jumping:false,
         score:0,
         highest:0,
+        speed:0.5
     }},
     color: "#4BDC13",
     resource: "prestige points",
@@ -80,7 +81,9 @@ addLayer("spider", {
     layerShown(){return true},
     tabFormat:["grid",'blank','clickables','blank',['display-text',function(){return "Score: "+Math.floor(player.spider.score)+" Highest: "+Math.floor(player.spider.highest)}]],
     update(diff){
+        diff=diff*player.spider.speed
         player.spider.score+=50*diff
+        player.spider.speed=player.spider.score/2000+0.5
         player.spider.xpos+=50*diff
         player.spider.extraXpos+=50*diff
          if(player.spider.extraXpos>=10){
@@ -140,8 +143,8 @@ function jumpSpider(acc){
     player.spider.jumping=true
     player.spider.drop_acc=15
     let acc2=acc
-    player.spider.realY=player.spider.realY+(acc*0.24)
-    acc2-=0.48
+    player.spider.realY=player.spider.realY+(acc*0.24*player.spider.speed)
+    acc2-=(0.48*player.spider.speed)
     setTimeout(function(){jumpSpider(acc2)},40)
 }
 function jumpSpiderR(acc){
@@ -149,7 +152,7 @@ function jumpSpiderR(acc){
     player.spider.jumping=true
     player.spider.drop_acc=-15
     let acc2=acc
-    player.spider.realY=player.spider.realY-(acc*0.24)
-    acc2-=0.48
+    player.spider.realY=player.spider.realY-(acc*0.24*player.spider.speed)
+    acc2-=(0.48*player.spider.speed)
     setTimeout(function(){jumpSpiderR(acc2)},40)
 }
