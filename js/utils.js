@@ -462,7 +462,10 @@ function versionCheck() {
 	}
 	
 	if (setVersion) {
-		if (player.versionType == modInfo.id && VERSION.num > player.version) player.keepGoing = false
+		if (player.versionType == modInfo.id && VERSION.num > player.version) {
+			player.keepGoing = false
+			if (fixOldSave) fixOldSave(player.version);
+		}
 		player.versionType = getStartPlayer().versionType
 		player.version = VERSION.num
 		player.beta = VERSION.beta

@@ -133,3 +133,24 @@ function adjustNotificationTime(diff) {
 		}
 	}
 }
+
+function fixOldSave(oldVersion){
+	if(oldVersion=="1.2"){
+		player.en.first=player.timePlayed
+		player.ne.first=player.timePlayed
+		player.id.first=player.timePlayed
+		player.r.first=player.timePlayed
+		player.ai.first=player.timePlayed
+		player.c.first=player.timePlayed
+	}
+	if(oldVersion=="1.1"){
+		player.ma.first=player.timePlayed
+		player.ge.first=player.timePlayed
+		player.mc.first=player.timePlayed
+	}
+	if(oldVersion=="1.0"){
+		player.n.first=player.timePlayed
+		player.hs.first=player.timePlayed
+		player.i.first=player.timePlayed
+	}
+}
