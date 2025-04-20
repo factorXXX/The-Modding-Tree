@@ -135,7 +135,7 @@ function adjustNotificationTime(diff) {
 }
 
 function fixOldSave(oldVersion){
-	if(oldVersion=="1.2"){
+	if(oldVersion=="1.2"||oldVersion=="1.1"||oldVersion=="1.0"){
 		player.en.first=player.timePlayed
 		player.ne.first=player.timePlayed
 		player.id.first=player.timePlayed
@@ -143,7 +143,7 @@ function fixOldSave(oldVersion){
 		player.ai.first=player.timePlayed
 		player.c.first=player.timePlayed
 	}
-	if(oldVersion=="1.1"){
+	if(oldVersion=="1.1"||oldVersion=="1.0"){
 		player.ma.first=player.timePlayed
 		player.ge.first=player.timePlayed
 		player.mc.first=player.timePlayed
